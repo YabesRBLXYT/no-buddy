@@ -7,23 +7,37 @@
     <script>
         function loadContent() {
             const hash = window.location.hash.substring(1);
-            fetch('data.json')
+            fetch('links.json')
                 .then(response => response.json())
                 .then(data => {
-                    const destination = data[hash];
-                    if (destination) {
-                        const folder = destination.folder;
-                        const file = destination.file;
-                        fetch(`html/${folder}/${file}`)
-                            .then(response => response.text())
-                            .then(content => {
-                                document.getElementById('content').innerHTML = content;
-                            })
-                            .catch(() => {
-                                document.getElementById('content').innerHTML = "<h1>Error loading content</h1>";
-                            });
+                    const contentDiv = document.getElementById('content');
+                    if (hash) {
+                        const destination = data[hash];
+                        if (destination) {
+                            const folder = destination.folder;
+                            const file = destination.file;
+                            fetch(`html/${folder}/${file}`)
+                                .then(response => response.text())
+                                .then(content => {
+                                    contentDiv.innerHTML = content;
+                                })
+                                .catch(() => {
+                                    contentDiv.innerHTML = "<h1>Error loading content</h1>";
+                                });
+                        } else {
+                            contentDiv.innerHTML = "<h1>404 Not Found</h1>";
+                        }
                     } else {
-                        document.getElementById('content').innerHTML = "<h1>404 Not Found</h1>";
+                        // No hash, show list of available links
+                        let list = '<h1>Available Pages</h1><ul>';
+                        for (const key in data) {
+                            if (data.hasOwnProperty(key)) {
+                                const item = data[key];
+                                list += `<li><a href="#${key}">${item.name}</a></li>`;
+                            }
+                        }
+                        list += '</ul>';
+                        contentDiv.innerHTML = list;
                     }
                 })
                 .catch(() => {
