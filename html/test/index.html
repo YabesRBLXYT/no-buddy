@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YouTube Audio Player</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 20px;
+        }
+        .youtube-audio-player {
+            position: relative;
+            overflow: hidden;
+            width: 80px;  /* Sesuaikan ukuran ini untuk bagian yang di-crop */
+            height: 35px; /* Sesuaikan ukuran ini untuk bagian yang di-crop */
+            margin: 20px auto;
+            border-radius: 5px;
+            box-shadow: 0px 0px 10px rgba(0,0,0,0.3);
+        }
+        #ytplayer {
+            position: absolute;
+            top: -490px; /* Crop bagian atas untuk menampilkan bagian skip ads */
+            left: -500px; /* Crop bagian kiri untuk menampilkan bagian skip ads */
+            width: 1280px; /* Lebar asli dari video */
+            height: 720px; /* Tinggi asli dari video */
+            border: none;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        li {
+            margin: 10px 0;
+        }
+        a {
+            text-decoration: none;
+            color: #007BFF;
+            font-weight: bold;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        #progress-bar-container {
+            width: 80%;
+            height: 20px;
+            background-color: #ddd;
+            margin: 20px auto;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        #progress-bar {
+            height: 100%;
+            width: 0%;
+            background-color: #007BFF;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>YouTube Audio Player</h1>
+    <ul id="video-list"></ul>
+
+    <div id="progress-bar-container">
+        <div id="progress-bar"></div>
+    </div>
+
+    <div class="youtube-audio-player">
+        <div id="ytplayer"></div>
+    </div>
+
+    <script src="https://www.youtube.com/iframe_api"></script>
+    <script>
+        let player;
+        let videos = [];
+        let currentIndex = 0;
+        let progressBarInterval;
+
+        function onYouTubeIframeAPIReady() {
+            loadVideoLinks();
+        }
+
+        function updateProgressBar() {
+            if (player && player.getDuration) {
+                const duration = player.getDuration();
+                const currentTime = player.getCurrentTime();
+                const progress = (currentTime / duration) * 100;
+                document.getElementById('progress-bar').style.width = progress + '%';
+            }
+        }
+
+        function playVideo(videoId) {
+            if (player) {
+                player.loadVideoById(videoId);
+                player.playVideo();
+            } else {
+                player = new YT.Player('ytplayer', {
+                    videoId: videoId,
+                    playerVars: {
+                        'autoplay': 1,
+                        'controls': 0,
+                        'modestbranding': 1,
+                        'rel': 0,
+                        'showinfo': 0
+                    },
+                    events: {
+                        'onReady': function(event) {
+                            event.target.playVideo();
+                            startProgressBar();
+                        },
+                        'onStateChange': function(event) {
+                            handleStateChange(event);
+                        }
+                    }
+                });
+            }
+            startProgressBar();
+        }
+
+        function startProgressBar() {
+            if (progressBarInterval) {
+                clearInterval(progressBarInterval);
+            }
+            progressBarInterval = setInterval(updateProgressBar, 1000);
+        }
+
+        function handleStateChange(event) {
+            if (event.data === YT.PlayerState.ENDED) {
+                playNextVideo();
+            }
+        }
+
+        function playNextVideo() {
+            currentIndex = (currentIndex + 1) % videos.length;
+            const nextVideo = videos[currentIndex];
+            playVideo(nextVideo.id);
+            window.location.hash = nextVideo.hash;
+        }
+
+        async function loadVideoLinks() {
+            const response = await fetch('links.json');
+            const data = await response.json();
+            videos = data.videos;
+            const videoList = document.getElementById('video-list');
+
+            videos.forEach(video => {
+                const listItem = document.createElement('li');
+                const link = document.createElement('a');
+                link.href = video.hash;
+                link.textContent = video.name;
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    playVideo(video.id);
+                });
+                listItem.appendChild(link);
+                videoList.appendChild(listItem);
+            });
+
+            // Load the first video by default
+            if (videos.length > 0) {
+                playVideo(videos[0].id);
+                window.location.hash = videos[0].hash;
+            }
+        }
+    </script>
+</body>
+</html>
