@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hash Redirect</title>
+    <script>
+        function redirectToHash() {
+            const hash = window.location.hash.substring(1);
+            fetch('data.json')
+                .then(response => response.json())
+                .then(data => {
+                    const destination = data[hash];
+                    if (destination) {
+                        const folder = destination.folder;
+                        const file = destination.file;
+                        window.location.href = `html/${folder}/${file}`;
+                    } else {
+                        document.body.innerHTML = "<h1>404 Not Found</h1>";
+                    }
+                })
+                .catch(() => {
+                    document.body.innerHTML = "<h1>Error loading data</h1>";
+                });
+        }
+
+        window.onload = redirectToHash;
+    </script>
+</head>
+<body>
+    <h1>Loading...</h1>
+</body>
+</html>
