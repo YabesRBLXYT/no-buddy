@@ -1,14 +1,17 @@
 {
   "hash1": {
     "folder": "test",
-    "file": "index.html"
+    "file": "index.html",
+    "name": "Test Page"
   },
   "hash2": {
     "folder": "sus",
-    "file": "sus.html"
+    "file": "sus.html",
+    "name": "Sus Page"
   },
   "hash3": {
     "folder": "test",
-    "file": "another.html"
+    "file": "another.html",
+    "name": "Another Test Page"
   }
 }
