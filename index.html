@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hash Redirect</title>
+    <title>View Content by Hash</title>
     <script>
-        function redirectToHash() {
+        function loadContent() {
             const hash = window.location.hash.substring(1);
             fetch('data.json')
                 .then(response => response.json())
@@ -14,20 +14,30 @@
                     if (destination) {
                         const folder = destination.folder;
                         const file = destination.file;
-                        window.location.href = `html/${folder}/${file}`;
+                        fetch(`html/${folder}/${file}`)
+                            .then(response => response.text())
+                            .then(content => {
+                                document.getElementById('content').innerHTML = content;
+                            })
+                            .catch(() => {
+                                document.getElementById('content').innerHTML = "<h1>Error loading content</h1>";
+                            });
                     } else {
-                        document.body.innerHTML = "<h1>404 Not Found</h1>";
+                        document.getElementById('content').innerHTML = "<h1>404 Not Found</h1>";
                     }
                 })
                 .catch(() => {
-                    document.body.innerHTML = "<h1>Error loading data</h1>";
+                    document.getElementById('content').innerHTML = "<h1>Error loading data</h1>";
                 });
         }
 
-        window.onload = redirectToHash;
+        window.onload = loadContent;
+        window.onhashchange = loadContent; // Refresh content when hash changes
     </script>
 </head>
 <body>
-    <h1>Loading...</h1>
+    <div id="content">
+        <h1>Loading...</h1>
+    </div>
 </body>
 </html>
