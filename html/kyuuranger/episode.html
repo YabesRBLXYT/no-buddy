@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Episode</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f0f0;
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+        iframe {
+            width: 100%; /* Sesuaikan dengan lebar layar */
+            height: calc(100vw * 9 / 16); /* Menjaga rasio 16:9 berdasarkan lebar layar */
+            max-height: 80vh; /* Membatasi tinggi maksimum agar tidak melebihi 80% tinggi layar */
+            display: block;
+            margin: 0 auto; /* Memusatkan iframe */
+        }
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            width: 80%;
+            margin-bottom: 20px;
+        }
+        .controls button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .controls button:disabled {
+            background-color: #a0a0a0;
+            cursor: not-allowed;
+        }
+        .episode-list {
+            list-style: none;
+            padding: 0;
+            text-align: center;
+        }
+        .episode-list a {
+            text-decoration: none;
+            color: #007bff;
+            font-size: 18px;
+            margin: 0 10px;
+        }
+        .episode-list a:hover {
+            text-decoration: underline;
+        }
+        .title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="title" id="episodeTitle">Episode Title</div>
+        <iframe id="videoFrame" src="" allowfullscreen></iframe>
+
+        <div class="controls">
+            <button id="prevBtn" disabled>Previous Episode</button>
+            <button id="nextBtn" disabled>Next Episode</button>
+        </div>
+
+        <ul class="episode-list">
+            <li><a href="index.html">Back to List</a></li>
+        </ul>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const episodeId = window.location.hash.substring(1);
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            const titleElem = document.getElementById('episodeTitle');
+
+            if (episodeId) {
+                fetch('data.json')
+                    .then(response => response.json())
+                    .then(data => {
+                        let episodeFound = false;
+                        let episodeNumber = null;
+                        
+                        for (let key in data) {
+                            if (data[key].id === episodeId) {
+                                const episode = data[key];
+                                const fileId = episode.url.split('/d/')[1].split('/')[0];
+                                document.getElementById('videoFrame').src = `https://drive.google.com/file/d/${fileId}/preview`;
+                                titleElem.textContent = key; // Show title (e.g., "Episode 1")
+                                episodeNumber = parseInt(episodeId, 10);
+                                episodeFound = true;
+                                break;
+                            }
+                        }
+
+                        if (episodeFound) {
+                            // Handle Previous and Next buttons
+                            if (episodeNumber > 1) {
+                                prevBtn.disabled = false;
+                                prevBtn.onclick = () => {
+                                    window.location.hash = `#${episodeNumber - 1}`;
+                                    window.location.reload();
+                                };
+                            }
+                            if (episodeNumber < 48) {
+                                nextBtn.disabled = false;
+                                nextBtn.onclick = () => {
+                                    window.location.hash = `#${episodeNumber + 1}`;
+                                    window.location.reload();
+                                };
+                            }
+                        } else {
+                            document.getElementById('videoFrame').innerHTML = 'Episode tidak ditemukan';
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error loading data.json:', error);
+                        document.getElementById('videoFrame').innerHTML = 'Terjadi kesalahan';
+                    });
+            } else {
+                document.getElementById('videoFrame').innerHTML = 'ID episode tidak valid';
+            }
+        });
+    </script>
+</body>
+</html>
