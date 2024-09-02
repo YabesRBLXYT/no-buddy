@@ -1,0 +1,7 @@
+{
+  "videos": [
+    { "id": "PpJk34tAk8I", "name": "Video 1: Lagu Lagu JKT48", "hash": "#video1" },
+    { "id": "5NV6Rdv1a3I", "name": "Video 2: Daft Punk - Get Lucky", "hash": "#video2" },
+    { "id": "kXYiU_JCYtU", "name": "Video 3: Linkin Park - Numb", "hash": "#video3" }
+  ]
+}
