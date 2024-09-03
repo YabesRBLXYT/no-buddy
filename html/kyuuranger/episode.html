@@ -87,7 +87,7 @@
             const titleElem = document.getElementById('episodeTitle');
 
             if (episodeId) {
-                fetch('data.json')
+                fetch('html/kyuuranger/data.json')
                     .then(response => response.json())
                     .then(data => {
                         let episodeFound = false;
