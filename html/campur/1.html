@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Custom Generator with Copy and Open Buttons</title>
+    <style>
+        .copy-btn, .open-btn {
+            margin-left: 10px;
+            cursor: pointer;
+            padding: 5px 10px;
+            border: 1px solid #000;
+            background-color: #f0f0f0;
+            border-radius: 5px;
+        }
+        .copy-btn:hover, .open-btn:hover {
+            background-color: #d0d0d0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Custom Generator with Copy and Open Buttons</h1>
+    
+    <label for="baseUrl">Base Text/URL (use custom marker for replacement):</label><br>
+    <input type="text" id="baseUrl" placeholder="Enter base text or URL">
+    <br><br>
+
+    <label for="marker">Replacement Marker (e.g., _):</label>
+    <input type="text" id="marker" placeholder="Enter marker" value="_">
+    <br><br>
+
+    <!-- Dropdown for selecting options -->
+    <label for="optionSelect">Select Type:</label>
+    <select id="optionSelect" onchange="toggleOptions()">
+        <option value="numbers">1-10 (Numbers)</option>
+        <option value="letters">A-Z (Letters)</option>
+        <option value="custom">Custom Text</option>
+    </select>
+    <br><br>
+
+    <!-- Number range input (1-10) -->
+    <div id="numbersSection">
+        <label for="startNumber">Start Value (number):</label>
+        <input type="number" id="startNumber" placeholder="1" value="1">
+        <br><br>
+
+        <label for="endNumber">End Value (number):</label>
+        <input type="number" id="endNumber" placeholder="10" value="10">
+        <br><br>
+    </div>
+
+    <!-- Letter range input (A-Z) -->
+    <div id="lettersSection" style="display:none;">
+        <label for="startLetter">Start Letter (A-Z):</label>
+        <input type="text" id="startLetter" placeholder="A" maxlength="1">
+        <br><br>
+
+        <label for="endLetter">End Letter (A-Z):</label>
+        <input type="text" id="endLetter" placeholder="Z" maxlength="1">
+        <br><br>
+
+        <label for="repeatLetter">Repeat Letters How Many Times:</label>
+        <input type="number" id="repeatLetter" placeholder="1" value="1">
+        <br><br>
+    </div>
+
+    <!-- Custom text input -->
+    <div id="customSection" style="display:none;">
+        <label for="customText">Custom Text:</label>
+        <input type="text" id="customText" placeholder="Enter custom text">
+        <br><br>
+
+        <label for="customRepeat">Repeat How Many Times:</label>
+        <input type="number" id="customRepeat" placeholder="1" value="1">
+        <br><br>
+    </div>
+
+    <button onclick="generate()">Generate</button>
+    <button onclick="copyAll()">Copy All</button>
+    
+    <h2>Generated Text/URLs:</h2>
+    <ul id="list"></ul>
+    
+    <script>
+        function toggleOptions() {
+            const option = document.getElementById('optionSelect').value;
+            document.getElementById('numbersSection').style.display = (option === 'numbers') ? 'block' : 'none';
+            document.getElementById('lettersSection').style.display = (option === 'letters') ? 'block' : 'none';
+            document.getElementById('customSection').style.display = (option === 'custom') ? 'block' : 'none';
+        }
+
+        function generate() {
+            const baseUrl = document.getElementById('baseUrl').value;
+            const marker = document.getElementById('marker').value || '_';
+            const list = document.getElementById('list');
+            list.innerHTML = ''; // Clear previous results
+
+            const option = document.getElementById('optionSelect').value;
+
+            if (option === 'numbers') {
+                const startNumber = parseInt(document.getElementById('startNumber').value);
+                const endNumber = parseInt(document.getElementById('endNumber').value);
+                for (let i = startNumber; i <= endNumber; i++) {
+                    const newText = baseUrl.replace(marker, i);
+                    addListItem(newText);
+                }
+            } else if (option === 'letters') {
+                const startLetter = document.getElementById('startLetter').value.toUpperCase();
+                const endLetter = document.getElementById('endLetter').value.toUpperCase();
+                const repeatLetter = parseInt(document.getElementById('repeatLetter').value);
+
+                const startCharCode = startLetter.charCodeAt(0);
+                const endCharCode = endLetter.charCodeAt(0);
+
+                for (let i = startCharCode; i <= endCharCode; i++) {
+                    const letter = String.fromCharCode(i);
+                    for (let j = 0; j < repeatLetter; j++) {
+                        const newText = baseUrl.replace(marker, letter);
+                        addListItem(newText);
+                    }
+                }
+            } else if (option === 'custom') {
+                const customText = document.getElementById('customText').value;
+                const customRepeat = parseInt(document.getElementById('customRepeat').value);
+                for (let i = 0; i < customRepeat; i++) {
+                    const newText = baseUrl.replace(marker, customText);
+                    addListItem(newText);
+                }
+            }
+        }
+
+        // Add item to the list
+        function addListItem(newText) {
+            const list = document.getElementById('list');
+            const listItem = document.createElement('li');
+            const textSpan = document.createElement('span');
+            textSpan.textContent = newText;
+
+            // Add Copy button
+            const copyButton = document.createElement('button');
+            copyButton.textContent = "Copy";
+            copyButton.className = "copy-btn";
+            copyButton.onclick = () => copyText(newText);
+
+            listItem.appendChild(textSpan);
+            listItem.appendChild(copyButton);
+
+            // Add Open button if valid URL
+            if (isValidUrl(newText)) {
+                const openButton = document.createElement('button');
+                openButton.textContent = "Open";
+                openButton.className = "open-btn";
+                openButton.onclick = () => window.open(newText, '_blank');
+                listItem.appendChild(openButton);
+            }
+
+            list.appendChild(listItem);
+        }
+
+        // Function to copy a single text or URL
+        function copyText(text) {
+            const tempInput = document.createElement('input');
+            document.body.appendChild(tempInput);
+            tempInput.value = text;
+            tempInput.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempInput);
+            alert('Copied: ' + text);
+        }
+
+        // Function to copy all texts or URLs
+        function copyAll() {
+            const list = document.getElementById('list');
+            let allText = '';
+            for (let i = 0; i < list.children.length; i++) {
+                const text = list.children[i].querySelector('span').textContent;
+                allText += text + '\n';
+            }
+            
+            const tempTextarea = document.createElement('textarea');
+            document.body.appendChild(tempTextarea);
+            tempTextarea.value = allText.trim();
+            tempTextarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempTextarea);
+            alert('All copied!');
+        }
+
+        // Function to check if a string is a valid URL
+        function isValidUrl(string) {
+            try {
+                new URL(string);
+                return true;
+            } catch (_) {
+                return false;
+            }
+        }
+    </script>
+</body>
+</html>
