@@ -47,6 +47,14 @@
         <label for="endNumber">End Value (number):</label>
         <input type="number" id="endNumber" placeholder="10" value="10">
         <br><br>
+
+        <!-- Option for single or double digits -->
+        <label for="digitFormat">Number Format:</label>
+        <select id="digitFormat">
+            <option value="single">1-10 (Single Digit)</option>
+            <option value="double">01-10 (Double Digit)</option>
+        </select>
+        <br><br>
     </div>
 
     <!-- Letter range input (A-Z) -->
@@ -100,8 +108,14 @@
             if (option === 'numbers') {
                 const startNumber = parseInt(document.getElementById('startNumber').value);
                 const endNumber = parseInt(document.getElementById('endNumber').value);
+                const digitFormat = document.getElementById('digitFormat').value;
+
                 for (let i = startNumber; i <= endNumber; i++) {
-                    const newText = baseUrl.replace(marker, i);
+                    let formattedNumber = i.toString();
+                    if (digitFormat === 'double' && i < 10) {
+                        formattedNumber = '0' + i;
+                    }
+                    const newText = baseUrl.replace(marker, formattedNumber);
                     addListItem(newText);
                 }
             } else if (option === 'letters') {
@@ -157,36 +171,27 @@
             list.appendChild(listItem);
         }
 
-        // Function to copy a single text or URL
+        // Function to copy text
         function copyText(text) {
-            const tempInput = document.createElement('input');
-            document.body.appendChild(tempInput);
-            tempInput.value = text;
-            tempInput.select();
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            document.body.appendChild(textarea);
+            textarea.select();
             document.execCommand('copy');
-            document.body.removeChild(tempInput);
-            alert('Copied: ' + text);
+            document.body.removeChild(textarea);
         }
 
-        // Function to copy all texts or URLs
+        // Copy all generated text
         function copyAll() {
-            const list = document.getElementById('list');
+            const listItems = document.querySelectorAll('#list li span');
             let allText = '';
-            for (let i = 0; i < list.children.length; i++) {
-                const text = list.children[i].querySelector('span').textContent;
-                allText += text + '\n';
-            }
-            
-            const tempTextarea = document.createElement('textarea');
-            document.body.appendChild(tempTextarea);
-            tempTextarea.value = allText.trim();
-            tempTextarea.select();
-            document.execCommand('copy');
-            document.body.removeChild(tempTextarea);
-            alert('All copied!');
+            listItems.forEach(item => {
+                allText += item.textContent + '\n';
+            });
+            copyText(allText);
         }
 
-        // Function to check if a string is a valid URL
+        // Check if a string is a valid URL
         function isValidUrl(string) {
             try {
                 new URL(string);
