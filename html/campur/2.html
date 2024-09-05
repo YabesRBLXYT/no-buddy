@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Update Data JSON</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        input, textarea {
+            margin: 5px 0;
+            padding: 10px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        button {
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .chapter-section {
+            margin-top: 20px;
+            padding: 15px;
+            border: 1px solid #ccc;
+        }
+        .remove-btn {
+            background-color: red;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Update Chapter dan Gambar ke data.json</h1>
+    
+    <label for="currentJson">Masukkan data.json saat ini (kosongkan jika tidak ada):</label>
+    <textarea id="currentJson" rows="10" placeholder="Masukkan data.json saat ini"></textarea>
+
+    <div id="chapterContainer">
+        <div class="chapter-section" id="chapterSection-1">
+            <label for="chapter">Chapter (misal: 01.1, 21.5):</label>
+            <input type="text" class="chapter" placeholder="Masukkan nomor chapter" required>
+
+            <label for="imageUrls">URL Gambar (pisahkan dengan baris baru):</label>
+            <textarea class="imageUrls" rows="5" placeholder="Masukkan URL gambar, pisahkan tiap URL dengan enter" required></textarea>
+
+            <button class="remove-btn" onclick="removeChapterSection(1)">Hapus Section Ini</button>
+        </div>
+    </div>
+
+    <button onclick="addChapterSection()">+ Tambah Chapter</button>
+    <button onclick="generateUpdatedJSON()">Generate JSON</button>
+
+    <h2>Output JSON (salin dan masukkan ke data.json):</h2>
+    <textarea id="output" rows="10" readonly></textarea>
+
+    <script>
+        let chapterCount = 1;
+
+        function addChapterSection() {
+            chapterCount++;
+            const chapterContainer = document.getElementById('chapterContainer');
+            const newSection = document.createElement('div');
+            newSection.className = 'chapter-section';
+            newSection.id = `chapterSection-${chapterCount}`;
+
+            newSection.innerHTML = `
+                <label for="chapter">Chapter (misal: 01.1, 21.5):</label>
+                <input type="text" class="chapter" placeholder="Masukkan nomor chapter" required>
+    
+                <label for="imageUrls">URL Gambar (pisahkan dengan baris baru):</label>
+                <textarea class="imageUrls" rows="5" placeholder="Masukkan URL gambar, pisahkan tiap URL dengan enter" required></textarea>
+    
+                <button class="remove-btn" onclick="removeChapterSection(${chapterCount})">Hapus Section Ini</button>
+            `;
+            chapterContainer.appendChild(newSection);
+        }
+
+        function removeChapterSection(id) {
+            const section = document.getElementById(`chapterSection-${id}`);
+            section.remove();
+        }
+
+        function generateUpdatedJSON() {
+            let currentJson = document.getElementById('currentJson').value.trim();
+            let jsonData = [];
+
+            // Jika ada data json sebelumnya, parsing terlebih dahulu
+            if (currentJson) {
+                try {
+                    jsonData = JSON.parse(currentJson);
+                } catch (error) {
+                    alert('Format JSON tidak valid!');
+                    return;
+                }
+            }
+
+            // Mengambil semua data chapter baru
+            const chapterSections = document.querySelectorAll('.chapter-section');
+            chapterSections.forEach(section => {
+                const chapter = section.querySelector('.chapter').value;
+                const imageUrls = section.querySelector('.imageUrls').value.trim().split('\n');
+
+                if (chapter && imageUrls.length > 0) {
+                    jsonData.push({
+                        "chapter": chapter,
+                        "images": imageUrls
+                    });
+                }
+            });
+
+            // Hasil JSON yang telah di-update
+            const jsonOutput = JSON.stringify(jsonData, null, 4);
+            document.getElementById('output').value = jsonOutput;
+        }
+    </script>
+
+</body>
+</html>
