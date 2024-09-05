@@ -13,5 +13,10 @@
     "folder": "kyuuranger",
     "file": "index.html",
     "name": "Kyuuranger"
+  },
+  "copy": {
+    "folder": "campur",
+    "file": "1.html",
+    "name": "copy"
   }
 }
