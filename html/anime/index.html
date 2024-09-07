@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pixeldrain Video</title>
+    <script>
+        function loadVideoFromHash() {
+            const hash = window.location.hash.substring(1);  // Ambil hash tanpa tanda #
+            const episodeNumber = parseInt(hash.replace('episode', ''), 10);  // Ambil angka dari hash, misal 'episode1' jadi 1
+
+            // Cek apakah nomor episode valid (misal dari 1 sampai 14)
+            if (episodeNumber >= 1 && episodeNumber <= 14) {
+                const iframe = document.getElementById('video-player');
+                iframe.src = `https://pixeldrain.com/l/efLkyeah?embed#item=${episodeNumber - 1}`;
+                document.getElementById('episode-title').innerText = `Episode ${episodeNumber}`;
+            } else {
+                // Jika hash tidak valid, tampilkan pesan error atau episode default
+                document.getElementById('episode-title').innerText = 'Episode tidak ditemukan';
+            }
+        }
+
+        // Jalankan fungsi ini saat halaman dimuat dan ketika hash berubah
+        window.onload = loadVideoFromHash;
+        window.onhashchange = loadVideoFromHash;
+    </script>
+</head>
+<body>
+    <h1 id="episode-title">Episode 1</h1>
+    <iframe id="video-player" src="https://pixeldrain.com/l/efLkyeah?embed#item=0" width="640" height="360" frameborder="0" allowfullscreen></iframe>
+
+    <!-- Daftar Episode -->
+    <ul>
+        <li><a href="#episode1">Episode 1</a></li>
+        <li><a href="#episode2">Episode 2</a></li>
+        <li><a href="#episode3">Episode 3</a></li>
+        <li><a href="#episode4">Episode 4</a></li>
+        <li><a href="#episode5">Episode 5</a></li>
+        <li><a href="#episode6">Episode 6</a></li>
+        <li><a href="#episode7">Episode 7</a></li>
+        <li><a href="#episode8">Episode 8</a></li>
+        <li><a href="#episode9">Episode 9</a></li>
+        <li><a href="#episode10">Episode 10</a></li>
+        <li><a href="#episode11">Episode 11</a></li>
+        <li><a href="#episode12">Episode 12</a></li>
+        <li><a href="#episode13">Episode 13</a></li>
+        <li><a href="#episode14">Episode 14</a></li>
+    </ul>
+</body>
+</html>
